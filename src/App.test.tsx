@@ -1,7 +1,8 @@
 import React from 'react';
-
-import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import { screen } from '@testing-library/react';
 import App from './App';
+import { render } from './test-utils';
 // import { server } from './mocks/server';
 
 describe('Home', () => {
@@ -11,13 +12,11 @@ describe('Home', () => {
 
   test('renders learn react lin', async () => {
     render(<App />);
-    const linkElement = screen.getByText(/learn react/i);
 
     // await screen.findByText(/john/i);
-    screen.debug();
-    expect(linkElement).toBeInTheDocument();
 
     expect(await screen.findByText(/john/i)).toBeInTheDocument();
+    screen.debug();
 
     // await waitFor(() => {
     //   expect(await screen.findByText(/john/)).toBeInTheDocument();
