@@ -3,23 +3,14 @@ import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
 import App from './App';
 import { render } from './test-utils';
-// import { server } from './mocks/server';
 
-describe('Home', () => {
-  // beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
-  // afterEach(() => server.resetHandlers());
-  // afterAll(() => server.close());
+describe('App', () => {
+  window.scrollTo = jest.fn();
 
-  test('renders learn react lin', async () => {
+  test('should render the login page on mount', async () => {
     render(<App />);
 
-    // await screen.findByText(/john/i);
-
-    expect(await screen.findByText(/john/i)).toBeInTheDocument();
-    screen.debug();
-
-    // await waitFor(() => {
-    //   expect(await screen.findByText(/john/)).toBeInTheDocument();
-    // });
+    expect(await screen.findByText(/Spotfity search/i)).toBeInTheDocument();
+    expect(await screen.findByText(/authorize/i)).toBeInTheDocument();
   });
 });

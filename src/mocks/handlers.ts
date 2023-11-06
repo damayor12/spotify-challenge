@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { rest } from 'msw';
+import { mockResponse } from './mocks';
 
-// src/mocks/handlers.ts
-export const baseUrl = '/user';
+export const baseUrl = `https://api.spotify.com/v1`;
 
 export const handlers = [
-  rest.get('/user', async (req, res, ctx) => {
-    return res(ctx.json({ firstName: 'John' }));
-  }),
+  rest.get<any, any, SpotifyApi.TrackSearchResponse>(
+    `${baseUrl}/tracks/0xxx`,
+    async (req, res, ctx) => {
+      return res(ctx.json(mockResponse));
+    },
+  ),
 ];
-
-// export const handlers = [mockResponse];

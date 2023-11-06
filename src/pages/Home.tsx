@@ -1,64 +1,129 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useEffect, useState } from 'react';
-// import logo from './logo.svg';
-import './App.css';
-import { baseUrl } from '../mocks/handlers';
+import React, { useState } from 'react';
+
+import Player from '../components/WebPlayer/Player';
+import { Box, Button } from '@material-ui/core';
+import CardItem from '../components/Card/Card';
+import { useAuth } from '../hooks/useAuth';
+import Search from '../components/Search/Search';
+import { useTracks } from '../hooks/useTracks';
+import Pagination from '../components/Pagination/Pagination';
+import Container from '@material-ui/core/Container';
+
+export interface SearchResultsProps {
+  name: string;
+  uri: string;
+  album_image: string | undefined;
+  album_name: string;
+  id: string;
+  duration: number;
+}
 
 function Home() {
-  const [data, setData] = useState<{ firstName: string } | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [loading, setLoading] = useState<boolean>();
-  const [error, setError] = useState('');
+  const [isPlaying, setIsPlaying] = useState<boolean | null>(null);
+  const [currentPlaying, setCurrentPlaying] = useState<string>('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+  const { searchInput, searchResults, clearSearch, fetchSearch, pagesCount } =
+    useTracks();
+  const { isLoggedIn, login } = useAuth();
 
-      try {
-        const response = await fetch(`${baseUrl}`);
+  const handlePlayClick = (uri: string) => {
+    setIsPlaying((prev) => true);
+    setCurrentPlaying(uri);
+  };
 
-        console.log('response', response);
-
-        // if (!response) throw new Error(response);
-
-        const data = await response.json();
-
-        console.log('response', data);
-
-        setLoading(false);
-
-        setIsSuccess(true);
-        setData(data);
-
-        setError('');
-      } catch (error) {
-        setLoading(false);
-        setError('An error occurred. Awkward..');
-      }
-    };
-
-    fetchData();
-  }, []);
+  const handlePauseClick = (uri?: string) => {
+    setCurrentPlaying('');
+    setIsPlaying(false);
+  };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        {/* <img src={logo} className="App-logo" alt="logo" /> */}
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-
-        {data?.firstName && <span>{data.firstName}</span>}
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <Container>
+      {!isLoggedIn ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          <Button onClick={login}>Authorize</Button>
+        </Box>
+      ) : (
+        <>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              margin: '1rem 0',
+            }}
+          >
+            <Search
+              searchInput={searchInput}
+              fetchSearch={fetchSearch}
+              clearSearch={clearSearch}
+            />
+          </Box>
+
+          <>
+            {searchResults && searchResults.length > 0 && (
+              <Box sx={{ marginLeft: '1rem' }} data-testid="results-found">
+                Search Results for {searchInput}...
+              </Box>
+            )}
+          </>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'space-around',
+            }}
+            data-testid="results-dashboard"
+          >
+            {searchResults && searchResults.length > 0 ? (
+              searchResults.map((track, index) => (
+                <CardItem
+                  track={track}
+                  key={index}
+                  handlePlayClick={handlePlayClick}
+                  handlePauseClick={handlePauseClick}
+                  currentPlaying={currentPlaying}
+                  isPlaying={isPlaying}
+                />
+              ))
+            ) : searchInput !== '' ? (
+              <Box>No songs found :( </Box>
+            ) : (
+              <Box>Search your songs </Box>
+            )}
+          </Box>
+
+          {searchResults && searchResults.length > 0 ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: '1rem',
+              }}
+            >
+              <Pagination pagesCount={pagesCount} />
+            </Box>
+          ) : (
+            <></>
+          )}
+
+          {isPlaying !== null && (
+            <Player
+              currentTrack={currentPlaying}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+            />
+          )}
+        </>
+      )}
+    </Container>
   );
 }
 
