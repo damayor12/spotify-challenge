@@ -57,6 +57,8 @@ export const getTracks = async (searchTerm: string, page: number = 0) => {
 
     const tracks: SpotifyApi.TrackSearchResponse = await response.json();
 
+    console.log('res', response);
+
     return getFormattedResponse(tracks);
   } catch (err) {
     console.log(err);
