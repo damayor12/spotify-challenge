@@ -19,19 +19,33 @@ interface DashboardProps {
   pagesCount: number;
 }
 
-interface Props extends PropsWithChildren {}
+interface Props extends PropsWithChildren {
+  searchResults: SearchResultsProps[] | undefined;
+  searchInput: string;
+}
 
-const SearchResultsContainer = ({ children }: Props) => (
-  <Box
-    sx={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-around',
-    }}
-    data-testid="results-dashboard"
-  >
-    {children}
-  </Box>
+const SearchResultsContainer = ({
+  children,
+  searchResults,
+  searchInput,
+}: Props) => (
+  <>
+    {searchResults && searchResults.length > 0 && (
+      <Box sx={{ marginLeft: '1rem' }} data-testid="results-found">
+        Search Results for {searchInput}...
+      </Box>
+    )}
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+      }}
+      data-testid="results-dashboard"
+    >
+      {children}
+    </Box>
+  </>
 );
 const Dashboard = ({
   searchInput,
@@ -47,28 +61,16 @@ const Dashboard = ({
 }: DashboardProps) => {
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          margin: '1rem 0',
-        }}
+      <Search
+        searchInput={searchInput}
+        fetchSearch={fetchSearch}
+        clearSearch={clearSearch}
+      />
+
+      <SearchResultsContainer
+        searchResults={searchResults}
+        searchInput={searchInput}
       >
-        <Search
-          searchInput={searchInput}
-          fetchSearch={fetchSearch}
-          clearSearch={clearSearch}
-        />
-      </Box>
-
-      {searchResults && searchResults.length > 0 && (
-        <Box sx={{ marginLeft: '1rem' }} data-testid="results-found">
-          Search Results for {searchInput}...
-        </Box>
-      )}
-
-      <SearchResultsContainer>
         {searchResults && searchResults.length > 0 ? (
           searchResults.map((track, index) => (
             <CardItem
